@@ -90,7 +90,7 @@ npm run start:http
 | `PORT` | `3939` | منفذ الاستماع |
 | `MCP_PATH` | `/mcp` | مسار نقطة الاتصال |
 | `ALLOWED_HOSTS` | `quran.mashhor-hub.com,mcp.mashhor-hub.com,localhost` | رؤوس Host المسموحة (حماية من هجمات DNS rebinding) — **عدّلها لتطابق النطاق الفعلي الذي ستستضيف عليه** |
-| `ALLOWED_ORIGINS` | `https://claude.ai,https://claude.com` | أصول CORS المسموحة |
+| `ALLOWED_ORIGINS` | `https://claude.ai,https://claude.com,https://chatgpt.com,https://chat.openai.com,https://gemini.google.com` | أصول CORS المسموحة |
 | `RATE_LIMIT_PER_MIN` | `60` | أقصى عدد طلبات لكل عنوان IP في الدقيقة |
 | `TRUST_PROXY` | `1` | عدد قفزات الوكيل العكسي أمام الخادم (Express `trust proxy`) — بدون هذا يرى الخادم عنوان الوكيل نفسه لكل الزوار فيُبطِل تحديد المعدّل لكل IP. اتركه `1` خلف وكيل واحد (حالة Hostinger المعتادة)، أو عدّله ليطابق بنيتك |
 

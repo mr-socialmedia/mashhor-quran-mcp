@@ -61,7 +61,7 @@ npm run build:addons
 | المتغير | القيمة |
 |---|---|
 | `ALLOWED_HOSTS` | `mcp.mashhor-hub.com` |
-| `ALLOWED_ORIGINS` | `https://claude.ai,https://claude.com` |
+| `ALLOWED_ORIGINS` | `https://claude.ai,https://claude.com,https://chatgpt.com,https://chat.openai.com,https://gemini.google.com` |
 | `RATE_LIMIT_PER_MIN` | `60` |
 | `TRUST_PROXY` | `1` (القيمة الافتراضية، لا حاجة لضبطها إلا إن كانت البنية خلف أكثر من وكيل عكسي واحد) |
 

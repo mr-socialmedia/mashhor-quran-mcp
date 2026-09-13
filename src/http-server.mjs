@@ -22,10 +22,11 @@ const MCP_PATH = process.env.MCP_PATH || "/mcp";
 
 const ALLOWED_HOSTS = (process.env.ALLOWED_HOSTS || "quran.mashhor-hub.com,mcp.mashhor-hub.com,localhost")
   .split(",").map(s => s.trim()).filter(Boolean);
-/* claude.ai/claude.com يستدعيان الموصلات البعيدة من خوادمهما لا من متصفح
-   الزائر مباشرة غالبًا، لكن نسمح بأصلي الواجهة أيضًا احتياطًا لأي عميل ويب
-   يتصل من المتصفح مباشرة. عدّل هذه القائمة عبر ALLOWED_ORIGINS إن احتجت. */
-const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || "https://claude.ai,https://claude.com")
+/* Claude/ChatGPT/Gemini تستدعي الموصلات البعيدة من خوادمها لا من متصفح
+   الزائر مباشرة غالبًا (فلا يحمل الطلب رأس Origin أصلًا، ولا يتأثر بهذه
+   القائمة)، لكن نسمح بأصول الواجهات أيضًا احتياطًا لأي عميل ويب يتصل من
+   المتصفح مباشرة. عدّل هذه القائمة عبر ALLOWED_ORIGINS إن احتجت. */
+const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || "https://claude.ai,https://claude.com,https://chatgpt.com,https://chat.openai.com,https://gemini.google.com")
   .split(",").map(s => s.trim()).filter(Boolean);
 const RATE_LIMIT = Number(process.env.RATE_LIMIT_PER_MIN) || 60;
 
