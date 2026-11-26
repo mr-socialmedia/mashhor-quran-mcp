@@ -38,20 +38,23 @@ async function mp3quranApi(path, params) {
   throw new Error(`تعذّر الوصول إلى واجهة mp3quran.net (${path})`);
 }
 
-let quranIndex = null;
-async function loadQuranIndex() {
-  if (quranIndex) return quranIndex;
-  for (const url of QURAN_FULLTEXT_URLS) {
-    try {
-      const d = await fetchJson(url);
-      const rows = (d && d.quran) || [];
-      if (rows.length) {
-        quranIndex = rows.map(r => ({ c: +r.chapter, v: +r.verse, t: String(r.text || "") }));
-        return quranIndex;
+/* نخزّن الوعد (promise) لا النتيجة فقط، كي لا تُطلق الطلبات المتزامنة الأولى
+   عدة تنزيلات لنفس الملف الكبير؛ ويُصفَّر عند الفشل ليُعاد المحاولة لاحقًا. */
+let quranIndexPromise = null;
+function loadQuranIndex() {
+  if (!quranIndexPromise) {
+    quranIndexPromise = (async () => {
+      for (const url of QURAN_FULLTEXT_URLS) {
+        try {
+          const d = await fetchJson(url, 30000);
+          const rows = (d && d.quran) || [];
+          if (rows.length) return rows.map(r => ({ c: +r.chapter, v: +r.verse, t: String(r.text || "") }));
+        } catch { /* جرّب المصدر التالي */ }
       }
-    } catch { /* جرّب المصدر التالي */ }
+      throw new Error("تعذّر تحميل فهرس نص القرآن الكريم الكامل");
+    })().catch(e => { quranIndexPromise = null; throw e; });
   }
-  throw new Error("تعذّر تحميل فهرس نص القرآن الكريم الكامل");
+  return quranIndexPromise;
 }
 
 /* يبني تعبيرًا نمطيًا يتجاهل التشكيل ويوحّد صور الألف والهمزة والياء والتاء
@@ -172,7 +175,7 @@ export function createMcpServer() {
       description: "يعيد نص آية واحدة بعينها من القرآن الكريم برقم السورة ورقم الآية.",
       inputSchema: {
         surah: z.number().int().min(1).max(114).describe("رقم السورة"),
-        ayah: z.number().int().min(1).describe("رقم الآية داخل السورة")
+        ayah: z.number().int().min(1).max(286).describe("رقم الآية داخل السورة")
       }
     },
     async ({ surah, ayah }) => {
@@ -208,7 +211,7 @@ export function createMcpServer() {
         latitude: z.number().min(-90).max(90).optional(),
         longitude: z.number().min(-180).max(180).optional(),
         date: z.string().optional().describe("تاريخ بصيغة DD-MM-YYYY، افتراضيًا اليوم"),
-        method: z.number().int().optional().describe("رمز طريقة الحساب الفلكية (aladhan.com)، افتراضيًا 4")
+        method: z.number().int().min(0).max(99).optional().describe("رمز طريقة الحساب الفلكية (aladhan.com)، افتراضيًا 4")
       }
     },
     async ({ city, latitude, longitude, date, method }) => {

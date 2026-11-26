@@ -89,12 +89,22 @@ npm run start:http
 |---|---|---|
 | `PORT` | `3939` | منفذ الاستماع |
 | `MCP_PATH` | `/mcp` | مسار نقطة الاتصال |
-| `ALLOWED_HOSTS` | `quran.mashhor-hub.com,mcp.mashhor-hub.com,localhost` | رؤوس Host المسموحة (حماية من هجمات DNS rebinding) — **عدّلها لتطابق النطاق الفعلي الذي ستستضيف عليه** |
-| `ALLOWED_ORIGINS` | `https://claude.ai,https://claude.com,https://chatgpt.com,https://chat.openai.com,https://gemini.google.com` | أصول CORS المسموحة |
+| `ALLOWED_HOSTS` | `quran.mashhor-hub.com,mcp.mashhor-hub.com,localhost,127.0.0.1` | رؤوس Host المسموحة (حماية من هجمات DNS rebinding) — **عدّلها لتطابق النطاق الفعلي الذي ستستضيف عليه** |
+| `ALLOWED_ORIGINS` | `https://claude.ai,https://claude.com,https://chatgpt.com,https://chat.openai.com,https://gemini.google.com` | أصول CORS المسموحة. طلب يحمل `Origin` غير مدرج هنا (وليس localhost) يُرفض بـ403 كما تشترط مواصفة MCP؛ الطلبات بلا `Origin` تمر |
 | `RATE_LIMIT_PER_MIN` | `60` | أقصى عدد طلبات لكل عنوان IP في الدقيقة |
 | `TRUST_PROXY` | `1` | عدد قفزات الوكيل العكسي أمام الخادم (Express `trust proxy`) — بدون هذا يرى الخادم عنوان الوكيل نفسه لكل الزوار فيُبطِل تحديد المعدّل لكل IP. اتركه `1` خلف وكيل واحد (حالة Hostinger المعتادة)، أو عدّله ليطابق بنيتك |
 
 يُفضَّل تشغيله خلف وكيل عكسي (reverse proxy) بـHTTPS حقيقي (Caddy، Nginx، أو ما توفره منصة الاستضافة تلقائيًا) بدل تعريضه مباشرة على منفذ HTTP خام — أضف اسم النطاق الذي سيُستخدم فعليًا إلى `ALLOWED_HOSTS` كي لا تُرفض الطلبات.
+
+### نشر Hostinger (Node.js، نشر من أرشيف) وقائمة تشغيل
+
+- يجب أن يكون `package.json` و`src/` في **جذر الأرشيف** (لا داخل مجلد فرعي)؛ أمر البدء `npm run start:http` (أو الملف `src/http-server.mjs`)، Node 20 أو أحدث. لا ترفع `node_modules/` ولا `.env`.
+- لا أسرار في الكود؛ كل الإعدادات اختيارية عبر متغيرات البيئة أعلاه.
+- بعد كل نشر: `GET /health` يجب أن يعيد `{"status":"ok"}`؛ ثم استدعاء `tools/list` على `/mcp` (رأس `Accept: application/json, text/event-stream`).
+- فحص الصحة لا يستدعي واجهات خارجية، فنجاحه لا يضمن توفر mp3quran.net أو aladhan.com أو CDN نص القرآن.
+- مراجعة دورية: `npm audit` و`npm test` (اختبار دخان يشغّل الخادم محليًا ولا يحتاج إنترنت).
+- الإيقاف اللطيف: عند SIGTERM ينتظر الخادم الطلبات الجارية حتى 10 ثوانٍ.
+- لو ظهرت 403 غير متوقعة: تحقق من `ALLOWED_HOSTS` (رأس Host) و`ALLOWED_ORIGINS`. ولو 429 لكل الزوار: تحقق من `TRUST_PROXY`.
 
 ### الإضافة في تطبيق Claude (موصل مخصص)
 

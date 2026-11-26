@@ -9,7 +9,8 @@
   },
   "scripts": {
     "start": "node src/server.mjs",
-    "start:http": "node src/http-server.mjs"
+    "start:http": "node src/http-server.mjs",
+    "test": "node --test test/smoke.test.mjs"
   },
   "author": "Mashhor Hub",
   "license": "ISC",
@@ -17,5 +18,8 @@
     "@modelcontextprotocol/sdk": "^1.30.0",
     "express": "^5.2.1",
     "zod": "^4.6.2"
+  },
+  "engines": {
+    "node": ">=20"
   }
 }
